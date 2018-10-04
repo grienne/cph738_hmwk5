@@ -132,8 +132,8 @@ q1.beta
 q1.err <- coefficients(summary(fit_q1))[,2]
 q1.err
 
-#confidence intervals
-ci_q1 <- confint(fit_q1)
+#confidence intervals, didnt need, used the geom_errorbar function instead
+##ci_q1 <- confint(fit_q1)
 
 #state sample size
 state_sample_size <- aggregate(log.days ~ State, data = dat, FUN = length)
@@ -164,8 +164,35 @@ p + geom_point()+
 ```{r Question 2}
 
 
+q2_mlm <- lmer(log.days ~ BupFlag + (1|State), data = dat)
+summary(q2_mlm)
 
-rr <- ranef(fit.mlm, condVar = TRUE) 
+#parameters
+q2.beta <- coefficients(q2_mlm)
+q2.beta
+
+
+#state sample size
+state_sample_size <- aggregate(log.days ~ State, data = dat, FUN = length)
+
+
+q2_fixef <- fixef(q2_mlm, condVar = TRUE)
+q2_fixef_dat <- q2_fixef %>% data.frame()
+
+
+rr <- ranef(q2_mlm, condVar = TRUE) 
 mlm.dat <- rr %>% data.frame
+
+
+#Created Data Frame of Needed Items
+q2_data <- data.frame(state_sample_size ,q1.beta, mlm.dat$condsd)
+names(q2_data) <- c("State", "State_Sample_Size", "Mean_Estimate", "Standard_Error")
+
+
+p <- ggplot(aes(x = q2_data$State_Sample_Size, y = q2_data$Mean_Estimate), data = q2_data)
+p + geom_point()+
+      geom_errorbar(ymin = q2_data$Mean_Estimate - q2_data$Standard_Error, ymax = q2_data$Mean_Estimate + q2_data$Standard_Error) +
+      geom_hline(yintercept = I(mean(q2_data$Mean_Estimate, na.rm = T)))
+
 
 ```
