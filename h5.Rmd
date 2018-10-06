@@ -163,36 +163,36 @@ p + geom_point()+
 
 ```{r Question 2}
 
+###Problem below, replace BupFlag, with 1
+##review Design Matrices
 
-q2_mlm <- lmer(log.days ~ BupFlag + (1|State), data = dat)
+q2_mlm <- lmer(log.days ~ 1 + (1|State), data = dat)
 summary(q2_mlm)
 
-#parameters
-q2.beta <- coefficients(q2_mlm)
-q2.beta
 
-
-#state sample size
-state_sample_size <- aggregate(log.days ~ State, data = dat, FUN = length)
+#Generate predicted values of state level averages of log days
+#review last lecture slide
 
 
 q2_fixef <- fixef(q2_mlm, condVar = TRUE)
-q2_fixef_dat <- q2_fixef %>% data.frame()
+
+##compare between frequentist vs bayesian stastistics
+##
 
 
-rr <- ranef(q2_mlm, condVar = TRUE) 
+rr <- ranef(q2_mlm, condVar = TRUE)
+##conditionally give variance on estimated RE 
 mlm.dat <- rr %>% data.frame
 
 
-#Created Data Frame of Needed Items
-q2_data <- data.frame(state_sample_size ,q1.beta, mlm.dat$condsd)
-names(q2_data) <- c("State", "State_Sample_Size", "Mean_Estimate", "Standard_Error")
+mlm.dat <- mutate(mlm.dat, condval2 = mlm.dat$condval + q2_fixef)
 
 
-p <- ggplot(aes(x = q2_data$State_Sample_Size, y = q2_data$Mean_Estimate), data = q2_data)
-p + geom_point()+
-      geom_errorbar(ymin = q2_data$Mean_Estimate - q2_data$Standard_Error, ymax = q2_data$Mean_Estimate + q2_data$Standard_Error) +
-      geom_hline(yintercept = I(mean(q2_data$Mean_Estimate, na.rm = T)))
+
+
+p2 <- ggplot(aes(x = q1_data$State_Sample_Size, y = mlm.dat$condval2), data = mlm.dat)
+p2 + geom_point() + geom_errorbar(ymin = mlm.dat$condval2 - mlm.dat$condsd, ymax = mlm.dat$condval2 + mlm.dat$condsd) + geom_hline(yintercept = I(mean(mlm.dat$condval2, na.rm = T)))
+
 
 
 ```
