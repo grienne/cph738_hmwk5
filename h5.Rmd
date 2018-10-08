@@ -193,6 +193,6 @@ mlm.dat <- mutate(mlm.dat, condval2 = mlm.dat$condval + q2_fixef)
 p2 <- ggplot(aes(x = q1_data$State_Sample_Size, y = mlm.dat$condval2), data = mlm.dat)
 p2 + geom_point() + geom_errorbar(ymin = mlm.dat$condval2 - mlm.dat$condsd, ymax = mlm.dat$condval2 + mlm.dat$condsd) + geom_hline(yintercept = I(mean(mlm.dat$condval2, na.rm = T)))
 
-
+##Redo. for error bars, use mean - qnorm(.975/ mean + qnorm(.975))
 
 ```
